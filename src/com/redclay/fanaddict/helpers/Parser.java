@@ -78,9 +78,9 @@ public class Parser {
 			JSONObject profileObject = profileList.getJSONObject(i); 
 			UserProfile mProfileObject = new UserProfile(profileObject); 
 			mProfileList.add(mProfileObject); 
-			System.out.println("Profile: " + mProfileObject.toString());
+			//System.out.println("Profile: " + mProfileObject.toString());
 		}
-		System.out.println("ProfileList: " + mProfileList.toString());
+		//System.out.println("ProfileList: " + mProfileList.toString());
 		System.out.println("Profile List Count: " + mProfileList.size());
 	}
 

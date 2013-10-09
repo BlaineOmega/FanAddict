@@ -17,18 +17,21 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.support.v4.app.ListFragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -55,10 +58,10 @@ public class MainFeedActivity extends FragmentActivity {
 	 * The {@link ViewPager} that will host the section contents.
 	 */
 	ViewPager mViewPager;
-	private String jsonResponse = null; 
+	private String jsonResponse = null;
 	private static DeviceSettings mDeviceSettings;
-	private static List<UserProfile> mProfileList = new ArrayList<UserProfile>(); 
-	public static List<Long> mProfileIdList = new ArrayList<Long>(); 
+	private static List<UserProfile> mProfileList = new ArrayList<UserProfile>();
+	public static List<Long> mProfileIdList = new ArrayList<Long>();
 	private final String URL = "http://fanaddictsweb.redcley.com/Services/UserProfileService.svc/2/login";
 
 	@Override
@@ -66,9 +69,9 @@ public class MainFeedActivity extends FragmentActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main_feed);
 
-		RequestUserFeed feed = new RequestUserFeed(); 
-		feed.execute(URL); 
-		
+		RequestUserFeed feed = new RequestUserFeed();
+		feed.execute(URL);
+
 		// Create the adapter that will return a fragment for each of the three
 		// primary sections of the app.
 		mSectionsPagerAdapter = new SectionsPagerAdapter(
@@ -77,12 +80,6 @@ public class MainFeedActivity extends FragmentActivity {
 		// Set up the ViewPager with the sections adapter.
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
-		
-		
-		
-		
-		
-		
 	}
 
 	@Override
@@ -96,7 +93,7 @@ public class MainFeedActivity extends FragmentActivity {
 	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
 	 * one of the sections/tabs/pages.
 	 */
-	public class SectionsPagerAdapter extends FragmentPagerAdapter {
+	public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
 
 		public SectionsPagerAdapter(FragmentManager fm) {
 			super(fm);
@@ -104,20 +101,33 @@ public class MainFeedActivity extends FragmentActivity {
 
 		@Override
 		public Fragment getItem(int position) {
-			// getItem is called to instantiate the fragment for the given page.
-			// Return a DummySectionFragment (defined as a static inner class
-			// below) with the page number as its lone argument.
-			Fragment fragment = new DummySectionFragment();
-			Bundle args = new Bundle();
-			args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, position + 1);
-			fragment.setArguments(args);
-			return fragment;
+			/*
+			 * Here we are going to return the correct type of fragment for each
+			 * of the pages
+			 */
+			
+			
+			switch (position) {
+			case 0:
+				Log.d("Position", "Default Postion: " + position);
+				return MainListFragment.init(position); 
+			case 1:
+				Log.d("Position", "Default Postion: " + position);
+				return MainListFragment.init(position); 
+			case 2:
+				Log.d("Position", "Default Postion: " + position);
+				return MainListFragment.init(position); 
+			default:
+				Log.d("Position", "Default Postion: " + position);
+				return MainListFragment.init(position); 
+			}
+				
 		}
 
 		@Override
 		public int getCount() {
 			// Show 3 total pages.
-			return 3;
+			return 4;
 		}
 
 		@Override
@@ -136,68 +146,82 @@ public class MainFeedActivity extends FragmentActivity {
 	}
 
 	/**
-	 * A dummy fragment representing a section of the app, but that simply
-	 * displays dummy text.
+	 * A list fragment representing a section of the app, but that simply
+	 * displays a list.
 	 */
-	public static class DummySectionFragment extends Fragment {
+	public static class MainListFragment extends ListFragment {
 		/**
 		 * The fragment argument representing the section number for this
 		 * fragment.
 		 */
+
+		int fragNum;
 		public static final String ARG_SECTION_NUMBER = "section_number";
 
-		public DummySectionFragment() {
+		private static MainListFragment init(int val) {
+			MainListFragment mfl = new MainListFragment();
+
+			Bundle args = new Bundle();
+			args.putInt("val", val);
+			mfl.setArguments(args);
+
+			return mfl;
+		}
+
+		public MainListFragment() {
+		}
+
+		/**
+		 * Retrieving this instance's number from its arguments.
+		 */
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			Log.d("Fragment", "Fragment Created for " + getArguments().getInt("val"));
 		}
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			int page = getArguments().getInt(ARG_SECTION_NUMBER); 
-			switch(page){
-			case 1:
-				View rootView = inflater.inflate(R.layout.setting_fragment,
-						container, false);
-				SettingListAdapter settingAdapter = new SettingListAdapter(getActivity().getApplicationContext(), R.layout.setting_item_row, MainFeedActivity.mProfileList);
-				ListView listView = (ListView)rootView.findViewById(R.id.listView1);
-				listView.setAdapter(settingAdapter); 
-				break;
-			case 2:
-				break;
-			case 3:
-				break; 
-			}
+			View rootView = inflater.inflate(R.layout.setting_fragment,
+					container, false);
 			
-			TextView dummyTextView = (TextView) rootView
-					.findViewById(R.id.section_label);
-			dummyTextView.setText(Integer.toString(getArguments().getInt(
-					ARG_SECTION_NUMBER)));
+			SettingListAdapter settingAdapter = new SettingListAdapter(
+					getActivity().getApplicationContext(),
+					R.layout.setting_item_row, MainFeedActivity.mProfileList);
+			ListView listView = (ListView) rootView.findViewById(android.R.id.list);
+			listView.setAdapter(settingAdapter);
+				
 			return rootView;
-		}
+		}	
 	}
 
-	
-	class RequestUserFeed extends AsyncTask<String, String, HttpResponse>{
-		HttpResponse response = null; 
-		
+	class RequestUserFeed extends AsyncTask<String, String, HttpResponse> {
+		HttpResponse response = null;
+
 		@Override
 		protected HttpResponse doInBackground(String... uri) {
-			HttpClient httpClient = new DefaultHttpClient(); 
-			HttpPost post = new HttpPost(uri[0]); 
-			post.addHeader("Content-Type", "application/json"); 
+			HttpClient httpClient = new DefaultHttpClient();
+			HttpPost post = new HttpPost(uri[0]);
+			post.addHeader("Content-Type", "application/json");
 			try {
-				JSONObject json = new JSONObject(); 
+				JSONObject json = new JSONObject();
 				json.put("UserName", "michigan");
 				json.put("Password", "fanaddicts");
+				/*
+				 * TODO:  Assign deviceHardwareId dynamically.
+				 */
 				json.put("DeviceHardwareId", "NW58xfxz/w+jCiI3E592degUCL4=");
 				json.put("DeviceTypeId", "1");
-				StringEntity se = new StringEntity(json.toString()); 
-				Log.i("Feed Request", "SE: " + json.toString()); 
+				StringEntity se = new StringEntity(json.toString());
+				Log.i("Feed Request", "SE: " + json.toString());
 				post.setEntity(se);
-				
-				response = httpClient.execute(post); 
-				
-				Log.i("Feed Response", "Feed: " + response.getStatusLine().getStatusCode()); 
-				
+
+				response = httpClient.execute(post);
+
+				Log.i("Feed Response", "Feed: "
+						+ response.getStatusLine().getStatusCode());
+
 			} catch (ClientProtocolException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -207,43 +231,42 @@ public class MainFeedActivity extends FragmentActivity {
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} 
+			}
 
 			return response;
 		}
 
 		@Override
 		protected void onPostExecute(HttpResponse result) {
-			HttpEntity entity = result.getEntity(); 
-			
+			HttpEntity entity = result.getEntity();
+
 			try {
-				jsonResponse = EntityUtils.toString(entity); 
-				System.out.println("Resposne: " + jsonResponse );
-				Parser parser = new Parser(jsonResponse); 
-				MainFeedActivity.mDeviceSettings = parser.getmDeviceSettings(); 
-				MainFeedActivity.mProfileList = parser.getmProfileList(); 
-				MainFeedActivity.mProfileIdList = parser.getUserProfileIds(MainFeedActivity.mProfileList);
+				jsonResponse = EntityUtils.toString(entity);
+				Parser parser = new Parser(jsonResponse);
+				MainFeedActivity.mDeviceSettings = parser.getmDeviceSettings();
+				MainFeedActivity.mProfileList = parser.getmProfileList();
+				MainFeedActivity.mProfileIdList = parser
+						.getUserProfileIds(MainFeedActivity.mProfileList);
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} 
+			}
 		}
-		
-		
+
 	}
-	
-	class RequestSocialMediaFeeds extends AsyncTask<List<Long>, String, String>{
+
+	class RequestSocialMediaFeeds extends AsyncTask<List<Long>, String, String> {
 
 		@Override
 		protected String doInBackground(List<Long>... arg0) {
-			List<Long> mList = arg0[0]; 
-			RequestBatch batch = new RequestBatch(); 
-			
+			List<Long> mList = arg0[0];
+			RequestBatch batch = new RequestBatch();
+
 			return null;
 		}
-		
+
 	}
 }

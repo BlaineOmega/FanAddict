@@ -7,7 +7,7 @@ public class UserProfile {
 	
 	private String description;
 	private int gender; 
-	private boolean isFollowing; 
+	public boolean isFollowing; 
 	private boolean isOfficial; 
 	private String orgName; 
 	private int profileId; 
